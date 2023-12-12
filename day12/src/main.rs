@@ -51,7 +51,6 @@ fn main() {
                         .fold(0, |res, (i, b)| res | (b << i))
                 })
                 .filter(|v| {
-                    //println!("v: {v:b}, working: {known_working:b}, broken: {known_broken:b}");
                     let matches_working = (v & known_working) == 0;
                     let matches_broken = (v & known_broken) == known_broken;
 
@@ -71,17 +70,13 @@ fn main() {
         for ref_index in (0..=reference.len()).rev() {
             for contig_index in (0..=contiguous.len()).rev() {
                 let reference = &reference[ref_index..];
-                //println!("reference {ref_index}: {reference:?}");
                 let contiguous = &contiguous[contig_index..];
-                //println!("contiguous {contig_index}: {contiguous:?}");
 
                 if reference.is_empty() {
                     if contiguous.is_empty() {
                         memo[ref_index][contig_index] = 1;
-                        //println!("possibilities = 1 (reference and contig are empty)");
                     } else {
                         memo[ref_index][contig_index] = 0;
-                        //println!("possibilities = 0 (reference is empty, but contig is not)");
                     }
                     continue;
                 }
@@ -89,12 +84,8 @@ fn main() {
                 if contiguous.is_empty() {
                     if !reference.iter().any(|&c| c == '#') {
                         memo[ref_index][contig_index] = 1;
-                        //println!(
-                        //    "possibilities = 1 (contig is empty, but reference has no broken)"
-                        //);
                     } else {
                         memo[ref_index][contig_index] = 0;
-                        //println!("possibilities = 0 (contig is empty, but reference has broken)");
                     }
                     continue;
                 }
@@ -104,7 +95,6 @@ fn main() {
                 let mut possibilities = 0;
 
                 if reference[0] != '#' {
-                    //println!("using the skip num, since the next is not a guaranteed broken");
                     possibilities += memo
                         .get((ref_index + 1).min(reference_length))
                         .map(|memo| memo[contig_index])
@@ -117,14 +107,12 @@ fn main() {
                     .unwrap_or(false)
                     && reference.get(contig_size) != Some(&'#')
                 {
-                    //println!("The next n might be broken, so adding that possibility, ref_index = {}, contig_size = {}", (ref_index + contig_size + 1).min(reference_length), contig_index + 1);
                     possibilities += memo
                         .get((ref_index + contig_size + 1).min(reference_length))
                         .and_then(|memo| memo.get(contig_index + 1))
                         .unwrap_or(&0);
                 }
 
-                //println!("possibilities = {possibilities}");
                 memo[ref_index][contig_index] = possibilities;
             }
         }
@@ -142,8 +130,6 @@ fn main() {
                 .intersperse("?")
                 .flat_map(|r| r.chars())
                 .collect_vec();
-            //let record = record.chars().collect_vec();
-            //dbg!(&record);
 
             let contiguous = contiguous
                 .split(',')
@@ -153,7 +139,6 @@ fn main() {
                 .take(5)
                 .flatten()
                 .collect_vec();
-            //dbg!(&contiguous);
 
             possible_ways_dynamic(&record, &contiguous)
         })
